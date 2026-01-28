@@ -21,10 +21,14 @@ type Kiki struct {
 	storage *Storage
 	tools   *ToolHandler
 	logger  *slog.Logger
+	model   string
 }
 
 // NewKiki creates a new Kiki instance
-func NewKiki(storage *Storage, logger *slog.Logger) (*Kiki, error) {
+func NewKiki(storage *Storage, logger *slog.Logger, model string) (*Kiki, error) {
+	if model == "" {
+		model = defaultModel
+	}
 	client := copilot.NewClient(nil)
 	if err := client.Start(); err != nil {
 		return nil, fmt.Errorf("failed to start copilot client: %w", err)
@@ -37,6 +41,7 @@ func NewKiki(storage *Storage, logger *slog.Logger) (*Kiki, error) {
 		storage: storage,
 		tools:   tools,
 		logger:  logger,
+		model:   model,
 	}, nil
 }
 
@@ -92,7 +97,7 @@ func (k *Kiki) getOrCreateSession() (*copilot.Session, error) {
 	// Session doesn't exist, create a new one with our custom ID
 	session, err = k.client.CreateSession(&copilot.SessionConfig{
 		SessionID: sessionID,
-		Model:     "gpt-4.1",
+		Model:     k.model,
 		Streaming: true,
 		Tools:     k.tools.GetAllTools(),
 		SystemMessage: &copilot.SystemMessageConfig{
