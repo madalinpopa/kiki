@@ -12,10 +12,14 @@ import (
 var (
 	version   = "dev"
 	prompt    string
+	model     string
 	appLogger *slog.Logger
 )
 
-const exitFailureCode = 1
+const (
+	exitFailureCode = 1
+	defaultModel    = "gpt-4.1"
+)
 
 var rootCmd = &cobra.Command{
 	Use:   "kiki",
@@ -63,6 +67,7 @@ var refreshCmd = &cobra.Command{
 
 func init() {
 	rootCmd.Flags().StringVarP(&prompt, "prompt", "p", "", "Send a prompt to Kiki")
+	rootCmd.Flags().StringVar(&model, "model", defaultModel, "Model to use for the session")
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(refreshCmd)
@@ -108,7 +113,7 @@ func runPrompt(logger *slog.Logger, prompt string) error {
 		return fmt.Errorf("initializing storage: %w", err)
 	}
 
-	kiki, err := NewKiki(storage, logger)
+	kiki, err := NewKiki(storage, logger, model)
 	if err != nil {
 		return fmt.Errorf("initializing Kiki: %w", err)
 	}
@@ -149,7 +154,7 @@ func runRefresh() error {
 		return fmt.Errorf("initializing storage: %w", err)
 	}
 
-	kiki, err := NewKiki(storage, appLogger)
+	kiki, err := NewKiki(storage, appLogger, model)
 	if err != nil {
 		return fmt.Errorf("initializing Kiki: %w", err)
 	}
