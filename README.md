@@ -5,10 +5,10 @@ A sarcastic but helpful CLI assistant for managing tasks and notes, powered by G
 Quick taste (with the `??` alias):
 
 ```bash
-?? add task: "stop doomscrolling" tomorrow high priority
+?? add task: stop doomscrolling tomorrow high priority
 # Kiki: Sure. High priority: touch grass at 9am. You’re welcome.
 
-?? note: "API uses OAuth 2.0 for auth"
+?? note: API uses OAuth 2.0 for auth
 # Kiki: Noted. Try not to forget it like the rest of your “important” notes.
 
 ?? what tasks do I have today?
