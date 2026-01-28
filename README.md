@@ -83,6 +83,12 @@ $XDG_CONFIG_HOME/kiki/
 
 If `XDG_CONFIG_HOME` is not set, defaults to `~/.config/kiki/`.
 
+Logs are written to:
+
+```
+~/.kiki/kiki.log
+```
+
 ## Requirements
 
 - Go 1.21+
