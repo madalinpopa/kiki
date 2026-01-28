@@ -8,6 +8,12 @@ Quick taste (with the `??` alias):
 ?? add task: stop doomscrolling tomorrow high priority
 # Kiki: Sure. High priority: touch grass at 9am. You’re welcome.
 
+?? list my tasks
+# Kiki: Here’s your to-do list. Try not to ignore it like last time.
+# 1. Touch grass (due: 2025-01-29, priority: high)
+# 2. Fix the login bug (due: 2025-01-30, priority: medium)
+# 3. Review the PR (priority: low)
+
 ?? note: API uses OAuth 2.0 for auth
 # Kiki: Noted. Try not to forget it like the rest of your “important” notes.
 
