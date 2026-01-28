@@ -2,14 +2,17 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
+	"runtime/debug"
 
 	"github.com/spf13/cobra"
 )
 
 var (
-	version = "dev"
-	prompt  string
+	version   = "dev"
+	prompt    string
+	appLogger *slog.Logger
 )
 
 const exitFailureCode = 1
@@ -28,7 +31,7 @@ Examples:
 		if prompt == "" {
 			return cmd.Help()
 		}
-		return runPrompt(prompt)
+		return runPrompt(appLogger, prompt)
 	},
 }
 
@@ -56,22 +59,46 @@ func init() {
 }
 
 func main() {
+	logger, closer, err := NewFileLogger()
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+		os.Exit(exitFailureCode)
+	}
+	defer func() {
+		if err := closer.Close(); err != nil {
+			logger.Error("failed to close log file", "error", err)
+		}
+	}()
+
+	appLogger = logger
+	slog.SetDefault(logger)
+
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Error("panic", "panic", r, "stack", string(debug.Stack()))
+			if _, err := fmt.Fprintln(os.Stderr, "unexpected error"); err != nil {
+				logger.Error("failed to write panic message", "error", err)
+			}
+			os.Exit(exitFailureCode)
+		}
+	}()
+
 	if err := rootCmd.Execute(); err != nil {
-		_, err := fmt.Fprintln(os.Stderr, err)
-		if err != nil {
-			return
+		logger.Error("command failed", "error", err)
+		if _, printErr := fmt.Fprintln(os.Stderr, err); printErr != nil {
+			logger.Error("failed to write error", "error", printErr)
 		}
 		os.Exit(exitFailureCode)
 	}
 }
 
-func runPrompt(prompt string) error {
-	storage, err := NewStorage()
+func runPrompt(logger *slog.Logger, prompt string) error {
+	storage, err := NewStorage(logger)
 	if err != nil {
 		return fmt.Errorf("initializing storage: %w", err)
 	}
 
-	kiki, err := NewKiki(storage)
+	kiki, err := NewKiki(storage, logger)
 	if err != nil {
 		return fmt.Errorf("initializing Kiki: %w", err)
 	}
@@ -91,9 +118,17 @@ func runInit() error {
 		return fmt.Errorf("initializing storage: %w", err)
 	}
 
-	fmt.Printf("✅ Kiki initialized successfully!\n")
-	fmt.Printf("📁 Config directory: %s\n", configDir)
-	fmt.Printf("📝 Tasks file: %s/tasks.json\n", configDir)
-	fmt.Printf("📝 Notes file: %s/notes.json\n", configDir)
+	if _, err := fmt.Fprintln(os.Stdout, "✅ Kiki initialized successfully!"); err != nil {
+		return fmt.Errorf("writing init output: %w", err)
+	}
+	if _, err := fmt.Fprintf(os.Stdout, "📁 Config directory: %s\n", configDir); err != nil {
+		return fmt.Errorf("writing init output: %w", err)
+	}
+	if _, err := fmt.Fprintf(os.Stdout, "📝 Tasks file: %s/tasks.json\n", configDir); err != nil {
+		return fmt.Errorf("writing init output: %w", err)
+	}
+	if _, err := fmt.Fprintf(os.Stdout, "📝 Notes file: %s/notes.json\n", configDir); err != nil {
+		return fmt.Errorf("writing init output: %w", err)
+	}
 	return nil
 }
