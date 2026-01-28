@@ -193,7 +193,7 @@ func (h *ToolHandler) listTasksTool() copilot.Tool {
 				return ListTasksResult{Message: err.Error()}, nil
 			}
 
-			var filtered []TaskSummary
+			filtered := make([]TaskSummary, 0, len(taskList.Tasks))
 			for i, t := range taskList.Tasks {
 				include := false
 				switch params.Filter {
@@ -221,10 +221,6 @@ func (h *ToolHandler) listTasksTool() copilot.Tool {
 				}
 			}
 
-			if filtered == nil {
-				filtered = []TaskSummary{}
-			}
-
 			return ListTasksResult{
 				Tasks:   filtered,
 				Count:   len(filtered),
@@ -244,27 +240,16 @@ func (h *ToolHandler) completeTaskTool() copilot.Tool {
 				return CompleteTaskResult{Success: false, Message: err.Error()}, nil
 			}
 
-			query := strings.ToLower(params.Query)
-			found := false
-			var matchedTitle string
-
-			for i := range taskList.Tasks {
-				if taskList.Tasks[i].ID == params.Query ||
-					strings.Contains(strings.ToLower(taskList.Tasks[i].Title), query) {
-					taskList.Tasks[i].Completed = true
-					taskList.Tasks[i].UpdatedAt = time.Now()
-					matchedTitle = taskList.Tasks[i].Title
-					found = true
-					break
-				}
-			}
-
-			if !found {
+			foundIndex, matchedTitle := findTaskIndex(taskList.Tasks, params.Query)
+			if foundIndex == notFoundIndex {
 				return CompleteTaskResult{
 					Success: false,
 					Message: fmt.Sprintf("No task found matching '%s'", params.Query),
 				}, nil
 			}
+
+			taskList.Tasks[foundIndex].Completed = true
+			taskList.Tasks[foundIndex].UpdatedAt = time.Now()
 
 			if err := h.storage.SaveTasks(taskList); err != nil {
 				return CompleteTaskResult{Success: false, Message: err.Error()}, nil
@@ -288,27 +273,15 @@ func (h *ToolHandler) deleteTaskTool() copilot.Tool {
 				return DeleteTaskResult{Success: false, Message: err.Error()}, nil
 			}
 
-			query := strings.ToLower(params.Query)
-			found := notFoundIndex
-			var matchedTitle string
-
-			for i := range taskList.Tasks {
-				if taskList.Tasks[i].ID == params.Query ||
-					strings.Contains(strings.ToLower(taskList.Tasks[i].Title), query) {
-					found = i
-					matchedTitle = taskList.Tasks[i].Title
-					break
-				}
-			}
-
-			if found == notFoundIndex {
+			foundIndex, matchedTitle := findTaskIndex(taskList.Tasks, params.Query)
+			if foundIndex == notFoundIndex {
 				return DeleteTaskResult{
 					Success: false,
 					Message: fmt.Sprintf("No task found matching '%s'", params.Query),
 				}, nil
 			}
 
-			taskList.Tasks = append(taskList.Tasks[:found], taskList.Tasks[found+1:]...)
+			taskList.Tasks = append(taskList.Tasks[:foundIndex], taskList.Tasks[foundIndex+1:]...)
 
 			if err := h.storage.SaveTasks(taskList); err != nil {
 				return DeleteTaskResult{Success: false, Message: err.Error()}, nil
@@ -351,7 +324,7 @@ func (h *ToolHandler) listNotesTool() copilot.Tool {
 				return ListNotesResult{Message: err.Error()}, nil
 			}
 
-			var filtered []NoteSummary
+			filtered := make([]NoteSummary, 0, len(noteList.Notes))
 			noteNum := noteNumberStart
 			for _, n := range noteList.Notes {
 				include := true
@@ -375,22 +348,8 @@ func (h *ToolHandler) listNotesTool() copilot.Tool {
 
 				if include {
 					noteNum++
-					preview := n.Content
-					if len(preview) > notePreviewMax {
-						preview = preview[:notePreviewMax] + "..."
-					}
-					filtered = append(filtered, NoteSummary{
-						Number:  noteNum,
-						ID:      n.ID,
-						Title:   n.Title,
-						Preview: preview,
-						Tags:    n.Tags,
-					})
+					filtered = append(filtered, noteSummaryFrom(n, noteNum))
 				}
-			}
-
-			if filtered == nil {
-				filtered = []NoteSummary{}
 			}
 
 			return ListNotesResult{
@@ -413,29 +372,15 @@ func (h *ToolHandler) searchNotesTool() copilot.Tool {
 			}
 
 			query := strings.ToLower(params.Query)
-			var filtered []NoteSummary
+			filtered := make([]NoteSummary, 0, len(noteList.Notes))
 			noteNum := noteNumberStart
 
 			for _, n := range noteList.Notes {
 				if strings.Contains(strings.ToLower(n.Title), query) ||
 					strings.Contains(strings.ToLower(n.Content), query) {
 					noteNum++
-					preview := n.Content
-					if len(preview) > notePreviewMax {
-						preview = preview[:notePreviewMax] + "..."
-					}
-					filtered = append(filtered, NoteSummary{
-						Number:  noteNum,
-						ID:      n.ID,
-						Title:   n.Title,
-						Preview: preview,
-						Tags:    n.Tags,
-					})
+					filtered = append(filtered, noteSummaryFrom(n, noteNum))
 				}
-			}
-
-			if filtered == nil {
-				filtered = []NoteSummary{}
 			}
 
 			return SearchNotesResult{
@@ -457,27 +402,15 @@ func (h *ToolHandler) deleteNoteTool() copilot.Tool {
 				return DeleteNoteResult{Success: false, Message: err.Error()}, nil
 			}
 
-			query := strings.ToLower(params.Query)
-			found := notFoundIndex
-			var matchedTitle string
-
-			for i := range noteList.Notes {
-				if noteList.Notes[i].ID == params.Query ||
-					strings.Contains(strings.ToLower(noteList.Notes[i].Title), query) {
-					found = i
-					matchedTitle = noteList.Notes[i].Title
-					break
-				}
-			}
-
-			if found == notFoundIndex {
+			foundIndex, matchedTitle := findNoteIndex(noteList.Notes, params.Query)
+			if foundIndex == notFoundIndex {
 				return DeleteNoteResult{
 					Success: false,
 					Message: fmt.Sprintf("No note found matching '%s'", params.Query),
 				}, nil
 			}
 
-			noteList.Notes = append(noteList.Notes[:found], noteList.Notes[found+1:]...)
+			noteList.Notes = append(noteList.Notes[:foundIndex], noteList.Notes[foundIndex+1:]...)
 
 			if err := h.storage.SaveNotes(noteList); err != nil {
 				return DeleteNoteResult{Success: false, Message: err.Error()}, nil
@@ -489,4 +422,44 @@ func (h *ToolHandler) deleteNoteTool() copilot.Tool {
 			}, nil
 		},
 	)
+}
+
+func findTaskIndex(tasks []Task, query string) (int, string) {
+	return findIndexByIDOrTitle(query, len(tasks), func(i int) (string, string) {
+		return tasks[i].ID, tasks[i].Title
+	})
+}
+
+func findNoteIndex(notes []Note, query string) (int, string) {
+	return findIndexByIDOrTitle(query, len(notes), func(i int) (string, string) {
+		return notes[i].ID, notes[i].Title
+	})
+}
+
+func findIndexByIDOrTitle(query string, length int, accessor func(int) (string, string)) (int, string) {
+	queryLower := strings.ToLower(query)
+	for i := 0; i < length; i++ {
+		id, title := accessor(i)
+		if id == query || strings.Contains(strings.ToLower(title), queryLower) {
+			return i, title
+		}
+	}
+	return notFoundIndex, ""
+}
+
+func noteSummaryFrom(note Note, number int) NoteSummary {
+	return NoteSummary{
+		Number:  number,
+		ID:      note.ID,
+		Title:   note.Title,
+		Preview: notePreview(note.Content),
+		Tags:    note.Tags,
+	}
+}
+
+func notePreview(content string) string {
+	if len(content) > notePreviewMax {
+		return content[:notePreviewMax] + "..."
+	}
+	return content
 }
