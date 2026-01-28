@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -18,11 +19,12 @@ const (
 // ToolHandler wraps storage for tool operations
 type ToolHandler struct {
 	storage *Storage
+	logger  *slog.Logger
 }
 
 // NewToolHandler creates a new tool handler
-func NewToolHandler(storage *Storage) *ToolHandler {
-	return &ToolHandler{storage: storage}
+func NewToolHandler(storage *Storage, logger *slog.Logger) *ToolHandler {
+	return &ToolHandler{storage: storage, logger: logger}
 }
 
 // AddTaskParams parameters for add_task tool
