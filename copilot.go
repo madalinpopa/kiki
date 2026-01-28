@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -52,21 +53,23 @@ type Kiki struct {
 	client  *copilot.Client
 	storage *Storage
 	tools   *ToolHandler
+	logger  *slog.Logger
 }
 
 // NewKiki creates a new Kiki instance
-func NewKiki(storage *Storage) (*Kiki, error) {
+func NewKiki(storage *Storage, logger *slog.Logger) (*Kiki, error) {
 	client := copilot.NewClient(nil)
 	if err := client.Start(); err != nil {
 		return nil, fmt.Errorf("failed to start copilot client: %w", err)
 	}
 
-	tools := NewToolHandler(storage)
+	tools := NewToolHandler(storage, logger)
 
 	return &Kiki{
 		client:  client,
 		storage: storage,
 		tools:   tools,
+		logger:  logger,
 	}, nil
 }
 
@@ -123,7 +126,12 @@ func (k *Kiki) Run(prompt string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer session.Destroy()
+	defer func(session *copilot.Session) {
+		err := session.Destroy()
+		if err != nil {
+			k.logger.Error("failed to close session")
+		}
+	}(session)
 
 	// Collect response
 	var responseBuilder strings.Builder
@@ -147,6 +155,7 @@ func (k *Kiki) Run(prompt string) (string, error) {
 		case "session.error":
 			if event.Data.Error != nil {
 				sessionError = fmt.Errorf("session error: %v", *event.Data.Error)
+				k.logger.Error("session error", "error", sessionError)
 			}
 		}
 	})
