@@ -82,7 +82,7 @@ function __kiki_ask() {
     kiki --help
     return 1
   fi
-  kiki -p "$*"
+  kiki -p "$*" --model gpt-5-mini
 }
 
 alias '??'='noglob __kiki_ask'
