@@ -5,7 +5,7 @@ A sarcastic but helpful CLI assistant for managing tasks and notes, powered by G
 ## Features
 
 - **Task Management** - Add, list, complete, and delete tasks with priorities and due dates
-- **Note Taking** - Capture notes with tags and search through them
+- **Note-Taking** - Capture notes with tags and search through them
 - **Natural Language** - Just tell Kiki what you want in plain English
 - **Sarcastic Personality** - Get things done with a side of sass
 
@@ -56,6 +56,22 @@ kiki -p "search notes for OAuth"
 kiki -p "delete note about API"
 ```
 
+## How I use it
+
+Add this to your `~/.zshrc`:
+
+```zsh
+function __kiki_ask() {
+  if [ -z "$1" ]; then
+    kiki --help
+    return 1
+  fi
+  kiki -p "$*"
+}
+
+alias '??'='noglob __kiki_ask'
+```
+
 ## Tools
 
 Kiki provides 8 tools for task and note management:
@@ -93,7 +109,3 @@ Logs are written to:
 
 - Go 1.21+
 - GitHub Copilot subscription
-
-## License
-
-MIT
