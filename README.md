@@ -28,6 +28,8 @@ Quick taste (with the `??` alias):
 - **Note-Taking** - Capture notes with tags and search through them
 - **Natural Language** - Just tell Kiki what you want in plain English
 - **Sarcastic Personality** - Get things done with a side of sass
+- **Session Persistence** - Kiki maintains one Copilot session per day, remembering conversation context throughout the
+  day
 
 ## Installation
 
