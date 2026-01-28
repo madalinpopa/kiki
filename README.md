@@ -1,6 +1,7 @@
 # 🐱 Kiki
 
-A sarcastic but helpful CLI assistant for managing tasks and notes, powered by GitHub Copilot.
+A sarcastic but helpful CLI assistant for managing tasks and notes, powered by GitHub Copilot. Built with the GitHub
+Copilot SDK ([github/copilot-sdk](https://github.com/github/copilot-sdk)).
 
 Quick taste (with the `??` alias):
 
