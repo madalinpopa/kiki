@@ -87,6 +87,23 @@ Kiki provides 8 tools for task and note management:
 | `search_notes`  | Find notes by keyword in title or content              |
 | `delete_note`   | Remove a note by ID, number, or title                  |
 
+## System Prompt
+
+Kiki's system prompt lives in `system_prompt.txt` and is embedded into the binary at build time.
+
+To customize it:
+
+1. Edit `system_prompt.txt` (keep the `%s` placeholder for today's date).
+2. Rebuild Kiki (`go build .` or `go install`).
+3. Refresh the session so the new prompt is used:
+
+```bash
+kiki refresh
+```
+
+Note: Kiki uses one Copilot session per day. If you update the prompt mid-day, run `kiki refresh` to force a fresh
+session with your changes.
+
 ## Configuration
 
 Kiki uses the XDG Base Directory specification:
