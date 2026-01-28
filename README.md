@@ -67,6 +67,9 @@ kiki -p "note: API uses OAuth 2.0 for authentication"
 kiki -p "list my notes"
 kiki -p "search notes for OAuth"
 kiki -p "delete note about API"
+
+# Model selection
+kiki --model gpt-4.1 -p "add task: review the PR"
 ```
 
 ## How I use it
