@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"time"
@@ -22,6 +23,7 @@ const (
 // Storage handles all file operations for Kiki
 type Storage struct {
 	basePath string
+	logger   *slog.Logger
 }
 
 // GetConfigDir returns the kiki config directory path using XDG_CONFIG_HOME
@@ -39,13 +41,12 @@ func GetConfigDir() string {
 }
 
 // NewStorage creates a new Storage instance and ensures the directory exists
-func NewStorage() (*Storage, error) {
+func NewStorage(logger *slog.Logger) (*Storage, error) {
 	basePath := GetConfigDir()
 	if err := os.MkdirAll(basePath, configDirPerm); err != nil {
 		return nil, fmt.Errorf("failed to create kiki directory: %w", err)
 	}
-
-	return &Storage{basePath: basePath}, nil
+	return &Storage{basePath: basePath, logger: logger}, nil
 }
 
 // InitStorage creates all required directories and files
@@ -59,7 +60,10 @@ func InitStorage() error {
 	tasksPath := filepath.Join(basePath, tasksFile)
 	if _, err := os.Stat(tasksPath); os.IsNotExist(err) {
 		emptyTasks := &TaskList{Tasks: []Task{}}
-		data, _ := json.MarshalIndent(emptyTasks, "", "  ")
+		data, err := json.MarshalIndent(emptyTasks, "", "  ")
+		if err != nil {
+			return fmt.Errorf("failed to serialize tasks.json: %w", err)
+		}
 		if err := os.WriteFile(tasksPath, data, dataFilePerm); err != nil {
 			return fmt.Errorf("failed to create tasks.json: %w", err)
 		}
@@ -68,7 +72,10 @@ func InitStorage() error {
 	notesPath := filepath.Join(basePath, notesFile)
 	if _, err := os.Stat(notesPath); os.IsNotExist(err) {
 		emptyNotes := &NoteList{Notes: []Note{}}
-		data, _ := json.MarshalIndent(emptyNotes, "", "  ")
+		data, err := json.MarshalIndent(emptyNotes, "", "  ")
+		if err != nil {
+			return fmt.Errorf("failed to serialize notes.json: %w", err)
+		}
 		if err := os.WriteFile(notesPath, data, dataFilePerm); err != nil {
 			return fmt.Errorf("failed to create notes.json: %w", err)
 		}
