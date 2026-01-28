@@ -81,6 +81,31 @@ func (k *Kiki) Close() {
 	}
 }
 
+// RefreshSession deletes today's session so a new one can be created.
+func (k *Kiki) RefreshSession() (bool, error) {
+	sessionID := getDailySessionID()
+	sessions, err := k.client.ListSessions()
+	if err != nil {
+		return false, fmt.Errorf("listing sessions: %w", err)
+	}
+
+	found := false
+	for _, session := range sessions {
+		if session.SessionID == sessionID {
+			found = true
+			break
+		}
+	}
+
+	if found {
+		if err := k.client.DeleteSession(sessionID); err != nil {
+			return false, fmt.Errorf("deleting session: %w", err)
+		}
+	}
+
+	return found, nil
+}
+
 // getDailySessionID returns a session ID for today (one session per day)
 func getDailySessionID() string {
 	return fmt.Sprintf("kiki-%s", todayString())
