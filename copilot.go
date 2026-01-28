@@ -146,7 +146,7 @@ func (k *Kiki) Run(prompt string) (string, error) {
 			fmt.Println()
 		case "session.error":
 			if event.Data.Error != nil {
-				sessionError = fmt.Errorf("session error: %s", *event.Data.Error)
+				sessionError = fmt.Errorf("session error: %v", *event.Data.Error)
 			}
 		}
 	})
