@@ -2,11 +2,19 @@ package main
 
 import (
 	"encoding/json"
+	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 )
+
+func newTestLogger() *slog.Logger {
+	return slog.New(slog.NewTextHandler(io.Discard, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
+}
 
 func TestGetConfigDir(t *testing.T) {
 	t.Run("uses XDG_CONFIG_HOME when set", func(t *testing.T) {
@@ -51,7 +59,7 @@ func TestNewStorage(t *testing.T) {
 		basePath := filepath.Join(configHome, kikiDir)
 
 		// act
-		storage, err := NewStorage()
+		storage, err := NewStorage(newTestLogger())
 
 		// assert
 		if err != nil {
@@ -123,7 +131,7 @@ func TestStorageTaskIO(t *testing.T) {
 		// arrange
 		configHome := t.TempDir()
 		t.Setenv("XDG_CONFIG_HOME", configHome)
-		storage, err := NewStorage()
+		storage, err := NewStorage(newTestLogger())
 		if err != nil {
 			t.Fatalf("failed to create storage: %v", err)
 		}
@@ -168,7 +176,7 @@ func TestStorageTaskIO(t *testing.T) {
 		// arrange
 		configHome := t.TempDir()
 		t.Setenv("XDG_CONFIG_HOME", configHome)
-		storage, err := NewStorage()
+		storage, err := NewStorage(newTestLogger())
 		if err != nil {
 			t.Fatalf("failed to create storage: %v", err)
 		}
@@ -191,7 +199,7 @@ func TestStorageNoteIO(t *testing.T) {
 		// arrange
 		configHome := t.TempDir()
 		t.Setenv("XDG_CONFIG_HOME", configHome)
-		storage, err := NewStorage()
+		storage, err := NewStorage(newTestLogger())
 		if err != nil {
 			t.Fatalf("failed to create storage: %v", err)
 		}
@@ -233,7 +241,7 @@ func TestStorageNoteIO(t *testing.T) {
 		// arrange
 		configHome := t.TempDir()
 		t.Setenv("XDG_CONFIG_HOME", configHome)
-		storage, err := NewStorage()
+		storage, err := NewStorage(newTestLogger())
 		if err != nil {
 			t.Fatalf("failed to create storage: %v", err)
 		}
@@ -256,7 +264,7 @@ func TestStorageAddTask(t *testing.T) {
 		// arrange
 		configHome := t.TempDir()
 		t.Setenv("XDG_CONFIG_HOME", configHome)
-		storage, err := NewStorage()
+		storage, err := NewStorage(newTestLogger())
 		if err != nil {
 			t.Fatalf("failed to create storage: %v", err)
 		}
@@ -311,7 +319,7 @@ func TestStorageAddNote(t *testing.T) {
 		// arrange
 		configHome := t.TempDir()
 		t.Setenv("XDG_CONFIG_HOME", configHome)
-		storage, err := NewStorage()
+		storage, err := NewStorage(newTestLogger())
 		if err != nil {
 			t.Fatalf("failed to create storage: %v", err)
 		}
