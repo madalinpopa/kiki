@@ -2,6 +2,19 @@
 
 A sarcastic but helpful CLI assistant for managing tasks and notes, powered by GitHub Copilot.
 
+Quick taste (with the `??` alias):
+
+```bash
+?? add task: "stop doomscrolling" tomorrow high priority
+# Kiki: Sure. High priority: touch grass at 9am. You’re welcome.
+
+?? note: "API uses OAuth 2.0 for auth"
+# Kiki: Noted. Try not to forget it like the rest of your “important” notes.
+
+?? what tasks do I have today?
+# Kiki: You have 2 tasks today. Try not to nap through both.
+```
+
 ## Features
 
 - **Task Management** - Add, list, complete, and delete tasks with priorities and due dates
