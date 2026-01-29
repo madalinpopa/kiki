@@ -115,11 +115,12 @@ type ListNotesResult struct {
 
 // NoteSummary simplified note for listing
 type NoteSummary struct {
-	Number  int      `json:"number"`
-	ID      string   `json:"id"`
-	Title   string   `json:"title"`
-	Preview string   `json:"preview"`
-	Tags    []string `json:"tags"`
+	Number    int      `json:"number"`
+	ID        string   `json:"id"`
+	Title     string   `json:"title"`
+	Preview   string   `json:"preview"`
+	Tags      []string `json:"tags"`
+	CreatedAt string   `json:"created_at"`
 }
 
 // SearchNotesParams parameters for search_notes tool
@@ -449,11 +450,12 @@ func findIndexByIDOrTitle(query string, length int, accessor func(int) (string, 
 
 func noteSummaryFrom(note Note, number int) NoteSummary {
 	return NoteSummary{
-		Number:  number,
-		ID:      note.ID,
-		Title:   note.Title,
-		Preview: notePreview(note.Content),
-		Tags:    note.Tags,
+		Number:    number,
+		ID:        note.ID,
+		Title:     note.Title,
+		Preview:   notePreview(note.Content),
+		Tags:      note.Tags,
+		CreatedAt: note.CreatedAt.Format("2006-01-02"),
 	}
 }
 
