@@ -3,6 +3,7 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"io"
 	"log/slog"
 	"strings"
 	"time"
@@ -115,19 +116,6 @@ func (k *Kiki) getOrCreateSession(fullSystemPrompt string) (*copilot.Session, bo
 	return session, false, nil
 }
 
-// primeSession sends the system prompt as a normal message so it persists in session history.
-func (k *Kiki) primeSession(session *copilot.Session, fullSystemPrompt string) error {
-	if strings.TrimSpace(fullSystemPrompt) == "" {
-		return nil
-	}
-	_, err := session.SendAndWait(copilot.MessageOptions{
-		Prompt: fullSystemPrompt,
-	}, sessionTimeout)
-	if err != nil {
-		return fmt.Errorf("priming session with system prompt: %w", err)
-	}
-	return nil
-}
 
 // todayString returns today's date as YYYY-MM-DD
 func todayString() string {
@@ -135,7 +123,7 @@ func todayString() string {
 }
 
 // Run sends a prompt to Kiki and returns the response
-func (k *Kiki) Run(prompt string) (string, error) {
+func (k *Kiki) Run(prompt string, out io.Writer) (string, error) {
 	fullSystemPrompt := fmt.Sprintf(systemPromptTemplate, todayString())
 	session, resumed, err := k.getOrCreateSession(fullSystemPrompt)
 	if err != nil {
@@ -148,11 +136,9 @@ func (k *Kiki) Run(prompt string) (string, error) {
 		}
 	}(session)
 
-	// Prime resumed sessions before attaching handlers so any response isn't printed.
+	// If resuming a session, re-inject the system prompt to ensure persona persistence
 	if resumed {
-		if err := k.primeSession(session, fullSystemPrompt); err != nil {
-			return "", err
-		}
+		prompt = fmt.Sprintf("%s\n\n%s", fullSystemPrompt, prompt)
 	}
 
 	// Collect response
@@ -164,16 +150,16 @@ func (k *Kiki) Run(prompt string) (string, error) {
 		switch event.Type {
 		case "assistant.message_delta":
 			if event.Data.DeltaContent != nil {
-				fmt.Print(*event.Data.DeltaContent)
+				fmt.Fprint(out, *event.Data.DeltaContent)
 				responseBuilder.WriteString(*event.Data.DeltaContent)
 			}
 		case "assistant.message":
 			if event.Data.Content != nil && responseBuilder.Len() == 0 {
-				fmt.Print(*event.Data.Content)
+				fmt.Fprint(out, *event.Data.Content)
 				responseBuilder.WriteString(*event.Data.Content)
 			}
 		case "session.idle":
-			fmt.Println()
+			fmt.Fprintln(out)
 		case "session.error":
 			if event.Data.Error != nil {
 				sessionError = fmt.Errorf("session error: %v", *event.Data.Error)
