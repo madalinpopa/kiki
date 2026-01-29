@@ -105,7 +105,7 @@ func (k *Kiki) getOrCreateSession(fullSystemPrompt string) (*copilot.Session, bo
 		Streaming: true,
 		Tools:     tools,
 		SystemMessage: &copilot.SystemMessageConfig{
-			Mode:    "append",
+			Mode:    "replace",
 			Content: fullSystemPrompt,
 		},
 	})
@@ -115,7 +115,6 @@ func (k *Kiki) getOrCreateSession(fullSystemPrompt string) (*copilot.Session, bo
 
 	return session, false, nil
 }
-
 
 // todayString returns today's date as YYYY-MM-DD
 func todayString() string {
