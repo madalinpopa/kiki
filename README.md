@@ -5,21 +5,44 @@ Copilot SDK ([github/copilot-sdk](https://github.com/github/copilot-sdk)).
 
 Quick taste (with the `??` alias):
 
-```bash
-?? add task: stop doomscrolling tomorrow high priority
-# Kiki: Sure. High priority: touch grass at 9am. You’re welcome.
+```
+➜ ?? add task: Investigate a critical deployment failure due Jan 30
+Task "Investigate a critical deployment failure" added for January 30—because nothing says fun like a looming crisis. At least now your task list has some drama again!
 
-?? list my tasks
-# Kiki: Here’s your to-do list. Try not to ignore it like last time.
-# 1. Touch grass (due: 2025-01-29, priority: high)
-# 2. Fix the login bug (due: 2025-01-30, priority: medium)
-# 3. Review the PR (priority: low)
+➜ ?? add task: clean up Docker images (low) by Jan 31
+Task "Clean up Docker images" added for January 31 with low priority—because nothing says excitement like digital housekeeping. Your to-do list is back in business, superstar!
 
-?? note: API uses OAuth 2.0 for auth
-# Kiki: Noted. Try not to forget it like the rest of your “important” notes.
+➜ ?? add task: prepare high-priority infrastructure docs by Feb 2
+Task "Prepare high-priority infrastructure docs" added for February 2 with high priority—because nothing says "living on the edge" like documentation deadlines. Your to-do list is officially intimidating again!
 
-?? what tasks do I have today?
-# Kiki: You have 2 tasks today. Try not to nap through both.
+➜ ?? list my tasks
+Here’s your current to-do list—finally looking like a real adult’s schedule:
+
+1. Investigate a critical deployment failure (Due: 2026-01-30, Priority: medium)
+2. Clean up Docker images (Due: 2026-01-31, Priority: low)
+3. Prepare high-priority infrastructure docs (Due: 2026-02-02, Priority: high)
+
+Look at you, balancing chaos and chores like a pro!
+
+➜ ?? mark task 2 done
+Task "Clean up Docker images" is now marked as done—look at you, conquering low-priority chores like a true champion. Want to tackle something with a little more adrenaline next?
+
+➜ ?? list my tasks
+Here’s your current to-do list—one less Docker mess to worry about:
+
+1. Investigate a critical deployment failure (Due: 2026-01-30, Priority: medium)
+2. Clean up Docker images (Due: 2026-01-31, Priority: low) — completed
+3. Prepare high-priority infrastructure docs (Due: 2026-02-02, Priority: high)
+
+Look at you, making progress like a productivity machine (with a hint of sass, of course)!
+
+➜ ?? list all high pr tasks
+Here’s your high-priority task—because you clearly love living on the edge:
+
+1. Prepare high-priority infrastructure docs (Due: 2026-02-02, Priority: high)
+
+Just one, but it’s got “high-priority” written all over it. No pressure!
+
 ```
 
 ## Features
