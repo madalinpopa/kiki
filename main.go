@@ -119,7 +119,7 @@ func runPrompt(logger *slog.Logger, prompt string) error {
 	}
 	defer kiki.Close()
 
-	_, err = kiki.Run(prompt)
+	_, err = kiki.Run(prompt, os.Stdout)
 	if err != nil {
 		return fmt.Errorf("running prompt: %w", err)
 	}
