@@ -5,15 +5,18 @@ Copilot SDK ([github/copilot-sdk](https://github.com/github/copilot-sdk)).
 
 Quick taste (with the `??` alias):
 
-```
+```console
 ➜ ?? add task: Investigate a critical deployment failure due Jan 30
-Task "Investigate a critical deployment failure" added for January 30—because nothing says fun like a looming crisis. At least now your task list has some drama again!
+Task "Investigate a critical deployment failure" added for January 30—because nothing says fun like a looming crisis.
+At least now your task list has some drama again!
 
 ➜ ?? add task: clean up Docker images (low) by Jan 31
-Task "Clean up Docker images" added for January 31 with low priority—because nothing says excitement like digital housekeeping. Your to-do list is back in business, superstar!
+Task "Clean up Docker images" added for January 31 with low priority—because nothing says excitement like digital housekeeping.
+Your to-do list is back in business, superstar!
 
 ➜ ?? add task: prepare high-priority infrastructure docs by Feb 2
-Task "Prepare high-priority infrastructure docs" added for February 2 with high priority—because nothing says "living on the edge" like documentation deadlines. Your to-do list is officially intimidating again!
+Task "Prepare high-priority infrastructure docs" added for February 2 with high priority—because nothing says "living on the edge" like documentation deadlines.
+Your to-do list is officially intimidating again!
 
 ➜ ?? list my tasks
 Here’s your current to-do list—finally looking like a real adult’s schedule:
@@ -25,7 +28,8 @@ Here’s your current to-do list—finally looking like a real adult’s schedul
 Look at you, balancing chaos and chores like a pro!
 
 ➜ ?? mark task 2 done
-Task "Clean up Docker images" is now marked as done—look at you, conquering low-priority chores like a true champion. Want to tackle something with a little more adrenaline next?
+Task "Clean up Docker images" is now marked as done—look at you, conquering low-priority chores like a true champion.
+Want to tackle something with a little more adrenaline next?
 
 ➜ ?? list my tasks
 Here’s your current to-do list—one less Docker mess to worry about:
